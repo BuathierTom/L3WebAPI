@@ -74,4 +74,17 @@ public class GamesService : IGamesService
             throw;
         }
     }
+    
+    public async Task<IEnumerable<GameDTO>> SearchGames(string name)
+    {
+        try
+        {
+            var games = await _gamesDataAccess.SearchGames(name);
+            return games.Select(game => game.ToDTO());
+        }
+        catch (Exception e) {
+            _logger.LogError(e, $"Erreur lors de la recherche des jeux contenant {name}", name); 
+            return [];
+        }
+    }
 }

@@ -53,4 +53,10 @@ public class GamesController : ControllerBase
         }
     }
     
+    [HttpGet("search/{name}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<GameDTO>>> SearchGames(string name)
+    {
+        return Ok(await _gamesService.SearchGames(name));
+    }
 }
