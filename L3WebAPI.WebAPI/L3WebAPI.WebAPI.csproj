@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="7.3.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\L3WebAPI.Business\L3WebAPI.Business.csproj" />
+    <ProjectReference Include="..\L3WebAPI.Common\L3WebAPI.Common.csproj" />
+    <ProjectReference Include="..\L3WebAPI.DataAccess\L3WebAPI.DataAccess.csproj" />
+  </ItemGroup>
+
+</Project>
