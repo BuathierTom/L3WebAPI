@@ -1,5 +1,7 @@
+using L3WebAPI.Business.Exceptions;
 using L3WebAPI.Business.Interfaces;
 using L3WebAPI.Common.DTO;
+using L3WebAPI.Common.Request;
 using Microsoft.AspNetCore.Mvc;
 
 namespace L3WebAPI.WebAPI.Controllers;
@@ -36,16 +38,19 @@ public class GamesController : ControllerBase
     }
     
     [HttpPost("")]
-    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<GameDTO>> CreateGame(GameDTO game)
+    public async Task<ActionResult> CreateGame([FromBody] CreateGameRequest request)
     {
-        if (game is null)
+        try
         {
-            return BadRequest();
+            await _gamesService.CreateGame(request);
+            return Ok();
         }
-        var createdGame = await _gamesService.CreateGame(game);
-        return CreatedAtAction(nameof(GetGame), new { id = createdGame.AppId }, createdGame);
+        catch (BusinessRuleException e)
+        {
+            return BadRequest(e.Message);
+        }
     }
     
 }

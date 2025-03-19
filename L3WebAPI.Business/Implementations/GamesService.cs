@@ -1,5 +1,8 @@
+using L3WebAPI.Business.Exceptions;
 using L3WebAPI.Business.Interfaces;
+using L3WebAPI.Common.DAO;
 using L3WebAPI.Common.DTO;
+using L3WebAPI.Common.Request;
 using L3WebAPI.DataAccess.Interfaces;
 using Microsoft.Extensions.Logging;
 
@@ -45,10 +48,30 @@ public class GamesService : IGamesService
     public async Task CreateGame (CreateGameRequest game) {
         try
         {
-            await _gamesDataAccess.CreateGame(game.ToDAO());
+            if (string.IsNullOrWhiteSpace(game.Name)) {
+                throw new BusinessRuleException("Le nom du jeu ne peut pas être vide");
+            }
+            
+            if (game.Name.Length > 1000) {
+                throw new BusinessRuleException("Le nom du jeu ne peut pas dépasser 1000 caractères");
+            }
+            
+            if (game.Prices.Count() < 1) {
+                throw new BusinessRuleException("Le jeu doit avoir au moins un prix");
+            }
+            
+            _gamesDataAccess.CreateGame(new GameDAO() {
+                    AppId = Guid.NewGuid(),
+                    Name = game.Name,
+                    Prices = game.Prices.Select(price => new PriceDAO {
+                        currency = price.Currency, 
+                        valeur = price.Valeur,
+                    })
+            });
         }
         catch (Exception e) {
-            _logger.LogError(e, "Erreur lors de la création du jeu"); 
+            _logger.LogError(e, "Erreur lors de la création du jeu");
+            throw;
         }
     }
 }
