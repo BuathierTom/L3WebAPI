@@ -56,4 +56,15 @@ public class GamesDataAccess : IGamesDataAccess
     {
         return games.Where(game => game.Name.Contains(name));
     }
+    
+    public async Task UpdateGame(GameDAO game)
+    {
+        var existingGame = games.FirstOrDefault(g => g.AppId == game.AppId);
+        if (existingGame is null)
+        {
+            throw new Exception("Game not found");
+        }
+        existingGame.Name = game.Name;
+        existingGame.Prices = game.Prices;
+    }
 }

@@ -9,5 +9,6 @@ public interface IGamesService
     Task<GameDTO?> GetGameById(Guid id);
     Task CreateGame(CreateGameRequest game);
     Task<IEnumerable<GameDTO>> SearchGames(string name);
+    Task UpdateGame(Guid id, UpdateGameRequest request);
     
 }

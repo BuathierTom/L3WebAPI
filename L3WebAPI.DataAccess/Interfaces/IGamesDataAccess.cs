@@ -8,4 +8,5 @@ public interface IGamesDataAccess
     Task<GameDAO?> GetGameById(Guid id);
     Task CreateGame(GameDAO game);
     Task<IEnumerable<GameDAO>> SearchGames(string name);
+    Task UpdateGame(GameDAO game);
 }

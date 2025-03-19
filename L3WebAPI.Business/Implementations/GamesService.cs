@@ -87,4 +87,39 @@ public class GamesService : IGamesService
             return [];
         }
     }
+    
+    public async Task UpdateGame(Guid id, UpdateGameRequest request)
+    {
+        try
+        {
+            var game = await _gamesDataAccess.GetGameById(id);
+            if (game is null) {
+                throw new BusinessRuleException("Le jeu n'existe pas");
+            }
+            
+            if (string.IsNullOrWhiteSpace(request.Name)) {
+                throw new BusinessRuleException("Le nom du jeu ne peut pas être vide");
+            }
+            
+            if (request.Name.Length > 1000) {
+                throw new BusinessRuleException("Le nom du jeu ne peut pas dépasser 1000 caractères");
+            }
+            
+            if (request.Prices.Count() < 1) {
+                throw new BusinessRuleException("Le jeu doit avoir au moins un prix");
+            }
+            
+            game.Name = request.Name;
+            game.Prices = request.Prices.Select(price => new PriceDAO {
+                currency = price.Currency, 
+                valeur = price.Valeur,
+            });
+            
+            await _gamesDataAccess.UpdateGame(game);
+        }
+        catch (Exception e) {
+            _logger.LogError(e, $"Erreur lors de la mise à jour du jeu {id}", id); 
+            throw;
+        }
+    }
 }

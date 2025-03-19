@@ -55,8 +55,23 @@ public class GamesController : ControllerBase
     
     [HttpGet("search/{name}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<IEnumerable<GameDTO>>> SearchGames(string name)
     {
         return Ok(await _gamesService.SearchGames(name));
+    }
+    
+    [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> UpdateGame(Guid id, [FromBody] UpdateGameRequest request)
+    {
+        try {
+            await _gamesService.UpdateGame(id, request);
+            return Ok();
+        }
+        catch (BusinessRuleException e) {
+            return BadRequest(e.Message);
+        }
     }
 }
