@@ -122,4 +122,21 @@ public class GamesService : IGamesService
             throw;
         }
     }
+    
+    public async Task DeleteGame(Guid id)
+    {
+        try
+        {
+            var game = await _gamesDataAccess.GetGameById(id);
+            if (game is null) {
+                throw new BusinessRuleException("Le jeu n'existe pas");
+            }
+            
+            await _gamesDataAccess.DeleteGame(id);
+        }
+        catch (Exception e) {
+            _logger.LogError(e, $"Erreur lors de la suppression du jeu {id}", id); 
+            throw;
+        }
+    }
 }

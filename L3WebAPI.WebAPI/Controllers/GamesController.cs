@@ -74,4 +74,18 @@ public class GamesController : ControllerBase
             return BadRequest(e.Message);
         }
     }
+    
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> DeleteGame(Guid id)
+    {
+        try {
+            await _gamesService.DeleteGame(id);
+            return Ok();
+        }
+        catch (BusinessRuleException e) {
+            return NotFound(e.Message);
+        }
+    }
 }

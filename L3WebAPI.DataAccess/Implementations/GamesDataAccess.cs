@@ -54,7 +54,10 @@ public class GamesDataAccess : IGamesDataAccess
     
     public async Task<IEnumerable<GameDAO>> SearchGames(string name)
     {
-        return games.Where(game => game.Name.Contains(name));
+        return games.Where(game => game.Name.Contains(
+            name,
+            StringComparison.OrdinalIgnoreCase
+        ));
     }
     
     public async Task UpdateGame(GameDAO game)
@@ -66,5 +69,15 @@ public class GamesDataAccess : IGamesDataAccess
         }
         existingGame.Name = game.Name;
         existingGame.Prices = game.Prices;
+    }
+    
+    public async Task DeleteGame(Guid id)
+    {
+        var existingGame = games.FirstOrDefault(g => g.AppId == id);
+        if (existingGame is null)
+        {
+            throw new Exception("Game not found");
+        }
+        games.Remove(existingGame);
     }
 }
