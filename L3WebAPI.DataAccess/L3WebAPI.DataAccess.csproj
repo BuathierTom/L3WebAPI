@@ -10,4 +10,8 @@
       <ProjectReference Include="..\L3WebAPI.Common\L3WebAPI.Common.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+    </ItemGroup>
+
 </Project>
