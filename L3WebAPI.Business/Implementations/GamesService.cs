@@ -66,7 +66,7 @@ public class GamesService : IGamesService
                     Prices = game.Prices.Select(price => new PriceDAO {
                         currency = price.Currency, 
                         valeur = price.Valeur,
-                    })
+                    }).ToList()
             });
         }
         catch (Exception e) {
@@ -113,7 +113,7 @@ public class GamesService : IGamesService
             game.Prices = request.Prices.Select(price => new PriceDAO {
                 currency = price.Currency, 
                 valeur = price.Valeur,
-            });
+            }).ToList();
             
             await _gamesDataAccess.UpdateGame(game);
         }

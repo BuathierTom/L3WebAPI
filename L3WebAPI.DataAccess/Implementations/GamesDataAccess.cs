@@ -1,83 +1,55 @@
-using L3WebAPI.Common;
 using L3WebAPI.Common.DAO;
 using L3WebAPI.DataAccess.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace L3WebAPI.DataAccess.Implementations;
 
 public class GamesDataAccess : IGamesDataAccess
 {
-    public static List<GameDAO> games = [
-        new GameDAO {
-            AppId = Guid.NewGuid(),
-            Name = "Portal 2",
-            Prices =
-            [
-                new PriceDAO
-                {
-                    valeur = 19.99M,
-                    currency = Currency.USD
-                }
-            ]
-        },
-        new GameDAO {
-            AppId = Guid.NewGuid(),
-            Name = "Half-Life 2",
-            Prices =
-            [
-                new PriceDAO
-                {
-                    valeur = 14.99M,
-                    currency = Currency.EUR
-                },
-                new PriceDAO
-                {
-                    valeur = 15.99M,
-                    currency = Currency.USD
-                }
-            ]
-        },
-    ];
-    public async Task<IEnumerable<GameDAO>> GetAllGames()
-    {
-        return games;
+    private readonly GameDbContext _dbContext;
+    
+    public GamesDataAccess(GameDbContext dbContext) {
+        _dbContext = dbContext;
     }
     
-    public async Task<GameDAO?> GetGameById(Guid id)
-    {
-        return games.FirstOrDefault(game => game.AppId == id);
+    public async Task<IEnumerable<GameDAO>> GetAllGames() {
+        return _dbContext.Games.Include(x => x.Prices).ToList();
+        //return _dbContext.Games.Include(x => x.Prices).Include(x => x.OtherField).ToList();
+        //return _dbContext.Games.Include(x => x.Prices).ThenInclude(x => x.PriceField).ToList();
     }
     
-    public async Task CreateGame(GameDAO game)
-    {
-        games.Add(game);
+    public Task<GameDAO?> GetGameById(Guid id) {
+        return _dbContext.Games
+            .Include(x => x.Prices)
+            .FirstOrDefaultAsync(x => x.AppId == id);
     }
     
-    public async Task<IEnumerable<GameDAO>> SearchGames(string name)
-    {
-        return games.Where(game => game.Name.Contains(
-            name,
-            StringComparison.OrdinalIgnoreCase
-        ));
+    public async Task CreateGame(GameDAO game) {
+        _dbContext.Games.Add(game);
+        await _dbContext.SaveChangesAsync();
     }
     
-    public async Task UpdateGame(GameDAO game)
-    {
-        var existingGame = games.FirstOrDefault(g => g.AppId == game.AppId);
-        if (existingGame is null)
-        {
-            throw new Exception("Game not found");
-        }
-        existingGame.Name = game.Name;
-        existingGame.Prices = game.Prices;
+    public async Task<IEnumerable<GameDAO>> SearchGames(string name) {
+        return _dbContext.Games
+            .Include(x => x.Prices)
+            .Where(game => game.Name.ToLower().Contains(name.ToLower()));
+        //.Where(game => game.Name.Contains(name, StringComparison.OrdinalIgnoreCase));
     }
     
-    public async Task DeleteGame(Guid id)
-    {
-        var existingGame = games.FirstOrDefault(g => g.AppId == id);
-        if (existingGame is null)
-        {
-            throw new Exception("Game not found");
-        }
-        games.Remove(existingGame);
+    public async Task UpdateGame(GameDAO game) {
+        // Ici on fait du change tracking
+        // vous pouvez getbyid dans le business, le modifier, puis faire juste savechangeasync();
+
+        var oldGame = await GetGameById(game.AppId);
+        oldGame.Name = game.Name;
+        oldGame.Prices = game.Prices;
+
+        await _dbContext.SaveChangesAsync();
+    }
+    
+    public async Task DeleteGame(Guid id) {
+        var oldGame = await GetGameById(id);
+        _dbContext.Games.Remove(oldGame);
+        await _dbContext.SaveChangesAsync();
     }
 }
